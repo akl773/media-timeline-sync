@@ -1,0 +1,13 @@
+ffmpeg:
+video_codec: copy
+audio_codec: aac
+audio_bitrate: 192k
+max_offset: 300  # maximum allowed audio offset in seconds
+
+logging:
+level: INFO
+file: logs/media_sync.log
+
+processing:
+max_concurrent_jobs: 4
+temp_directory: /tmp/media_sync
