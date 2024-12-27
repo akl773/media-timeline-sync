@@ -99,5 +99,47 @@ def validate_paths(input_path: str, audio_path: str, output_path: str) -> None:
             raise RuntimeError(f"Cannot create output directory: {str(e)}")
 
 
+def main():
+    """Main CLI entry point"""
+    args = parse_args()
+
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+
+    try:
+        # Validate paths
+        validate_paths(args.input, args.audio, args.output)
+
+        # Initialize processor
+        processor = MediaProcessor()
+
+        logger.info("Starting media synchronization...")
+        logger.info(f"Input video: {args.input}")
+        logger.info(f"Input audio: {args.audio}")
+        logger.info(f"Output path: {args.output}")
+        logger.info(f"Smart sync: {'enabled' if args.smart_sync else 'disabled'}")
+
+        # Process media
+        output_path = processor.merge_audio_video(
+            video_path=args.input,
+            audio_path=args.audio,
+            output_path=args.output,
+            smart_sync=args.smart_sync,
+            manual_offset=args.offset,
+            audio_track_number=args.track_number,
+            overwrite=args.overwrite
+        )
+
+        logger.info(f"Successfully created: {output_path}")
+        return 0
+
+    except FileNotFoundError as e:
+        logger.error(f"File error: {str(e)}")
+        return 1
+    except Exception as e:
+        logger.error(f"Error: {str(e)}")
+        return 1
+
+
 if __name__ == "__main__":
-    pass
+    sys.exit(main())
