@@ -108,6 +108,38 @@ Common issues and solutions:
    - Smart sync requires more processing time
    - Use manual offset for faster processing
 
+## Configuration Management
+
+You can now specify a custom configuration file and override config values with environment variables.
+
+- Use `--config` to specify a custom YAML config file:
+  ```bash
+  python media_sync_cli.py --config path/to/your_config.yaml ...
+  ```
+- Use `--list-formats` to print supported video and audio formats:
+  ```bash
+  python media_sync_cli.py --list-formats
+  ```
+- Use `--dry-run` to validate your inputs and config without processing media:
+  ```bash
+  python media_sync_cli.py --input video.mp4 --audio dub.mp3 --output final.mp4 --dry-run
+  ```
+
+### Sample config.yaml
+```yaml
+ffmpeg:
+  video_codec: copy
+  audio_codec: aac
+  audio_bitrate: 192k
+  max_offset: 300
+logging:
+  level: INFO
+  file: logs/media_sync.log
+processing:
+  max_concurrent_jobs: 4
+  temp_directory: /tmp/media_sync
+```
+
 ## Contributing
 
 1. Fork the repository
