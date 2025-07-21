@@ -46,6 +46,12 @@ Manual offset adjustment:
 python media_sync_cli.py --input video.mp4 --audio dub.mp3 --output final.mp4 --offset 2.5
 ```
 
+Preview mode (generate a 30-second preview):
+```bash
+python media_sync_cli.py --input video.mp4 --audio dub.mp3 --output final.mp4 --smart-sync --preview
+```
+This will create a file named `final_preview.mp4` containing the first 30 seconds of the synchronized output, so you can quickly check sync quality before processing the full file.
+
 ### Command-Line Options
 
 - `--input`, `-i`: Input video file path (required)
