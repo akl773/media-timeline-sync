@@ -95,6 +95,12 @@ Examples:
         help='Validate inputs and config, but do not process media'
     )
 
+    parser.add_argument(
+        '--preview',
+        action='store_true',
+        help='Generate a short preview (first 30 seconds) of the synchronized output.'
+    )
+
     return parser.parse_args()
 
 
@@ -147,6 +153,35 @@ def main():
 
         # Initialize processor
         processor = MediaProcessor()
+
+        # Handle preview mode
+        if args.preview:
+            preview_output = str(Path(args.output).with_name(Path(args.output).stem + '_preview' + Path(args.output).suffix))
+            # Use ffmpeg to trim both video and audio to first 30 seconds, then run merge
+            import subprocess
+            from tempfile import NamedTemporaryFile
+            # Trim video
+            with NamedTemporaryFile(suffix=Path(args.input).suffix, delete=False) as temp_vid:
+                subprocess.run([
+                    'ffmpeg', '-y', '-i', args.input, '-t', '30', '-c', 'copy', temp_vid.name
+                ], check=True)
+                # Trim audio
+                with NamedTemporaryFile(suffix=Path(args.audio).suffix, delete=False) as temp_aud:
+                    subprocess.run([
+                        'ffmpeg', '-y', '-i', args.audio, '-t', '30', '-c', 'copy', temp_aud.name
+                    ], check=True)
+                    # Merge preview
+                    output_path = processor.merge_audio_video(
+                        video_path=temp_vid.name,
+                        audio_path=temp_aud.name,
+                        output_path=preview_output,
+                        smart_sync=args.smart_sync,
+                        manual_offset=args.offset,
+                        audio_track_number=args.track_number,
+                        overwrite=True
+                    )
+            print(f"Preview created: {output_path}")
+            return 0
 
         logger.info("Starting media synchronization...")
         logger.info(f"Input video: {args.input}")
