@@ -123,6 +123,32 @@ def validate_paths(input_path: str, audio_path: str, output_path: str) -> None:
             raise RuntimeError(f"Cannot create output directory: {str(e)}")
 
 
+def print_supported_formats():
+    video_formats = [
+        ('.mp4', 'MPEG-4 Video'),
+        ('.mkv', 'Matroska Video'),
+        ('.avi', 'Audio Video Interleave'),
+        ('.mov', 'QuickTime Movie'),
+    ]
+    audio_formats = [
+        ('.mp3', 'MPEG Audio Layer III'),
+        ('.wav', 'Waveform Audio'),
+        ('.aac', 'Advanced Audio Coding'),
+        ('.m4a', 'MPEG-4 Audio'),
+    ]
+    print("\nSupported Video Formats:")
+    print("  Extension   Description")
+    print("  ---------   ----------------------")
+    for ext, desc in video_formats:
+        print(f"  {ext:<10} {desc}")
+    print("\nSupported Audio Formats:")
+    print("  Extension   Description")
+    print("  ---------   ----------------------")
+    for ext, desc in audio_formats:
+        print(f"  {ext:<10} {desc}")
+    print()
+
+
 def main():
     """Main CLI entry point"""
     args = parse_args()
@@ -134,9 +160,7 @@ def main():
     config_loader = ConfigLoader(args.config)
 
     if args.list_formats:
-        processor = MediaProcessor()
-        print("Supported video formats:", ', '.join(processor.supported_video_formats))
-        print("Supported audio formats:", ', '.join(processor.supported_audio_formats))
+        print_supported_formats()
         return 0
 
     try:
