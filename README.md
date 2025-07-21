@@ -86,68 +86,39 @@ Audio:
    - Handles varying commercial break patterns
    - Maintains sync across scene changes
 
-## Troubleshooting
+## Example Workflow
 
-Common issues and solutions:
+Here is a typical workflow for synchronizing dubbed audio with a video:
 
-1. FFmpeg not found:
+1. Prepare your original video and dubbed audio files.
+2. Run the tool with smart sync enabled:
    ```bash
-   # On Ubuntu/Debian
-   sudo apt-get install ffmpeg
-   
-   # On macOS with Homebrew
-   brew install ffmpeg
+   python media_sync_cli.py --input original.mp4 --audio dub.mp3 --output synced.mp4 --smart-sync
    ```
+3. Review the output. If further adjustment is needed, use the manual offset option:
+   ```bash
+   python media_sync_cli.py --input original.mp4 --audio dub.mp3 --output synced.mp4 --offset 1.5
+   ```
+4. Use the `--dry-run` option to validate your setup before processing large files.
 
-2. Audio sync issues:
-   - Try enabling smart sync with `--smart-sync`
-   - Use `--verbose` for detailed analysis
-   - Adjust manual offset if needed
+## Smart Sync vs Manual Offset
 
-3. Performance issues:
-   - Smart sync requires more processing time
-   - Use manual offset for faster processing
+- **Smart Sync**: Automatically analyzes scene changes and audio fingerprints to align dubbed audio with the original video, even if there are commercial breaks or edits.
+- **Manual Offset**: Applies a fixed time shift to the audio track. Useful for simple cases or as a fallback if smart sync is not accurate enough.
 
-## Configuration Management
+## Troubleshooting Q&A
 
-You can now specify a custom configuration file and override config values with environment variables.
+**Q: The output video is out of sync. What should I do?**
+A: Try running with `--smart-sync` for automatic alignment. If still out of sync, use the `--offset` option to manually adjust the timing.
 
-- Use `--config` to specify a custom YAML config file:
-  ```bash
-  python media_sync_cli.py --config path/to/your_config.yaml ...
-  ```
-- Use `--list-formats` to print supported video and audio formats:
-  ```bash
-  python media_sync_cli.py --list-formats
-  ```
-- Use `--dry-run` to validate your inputs and config without processing media:
-  ```bash
-  python media_sync_cli.py --input video.mp4 --audio dub.mp3 --output final.mp4 --dry-run
-  ```
+**Q: FFmpeg is not found.**
+A: Make sure FFmpeg is installed and available in your system PATH. See the Troubleshooting section above for installation commands.
 
-### Sample config.yaml
-```yaml
-ffmpeg:
-  video_codec: copy
-  audio_codec: aac
-  audio_bitrate: 192k
-  max_offset: 300
-logging:
-  level: INFO
-  file: logs/media_sync.log
-processing:
-  max_concurrent_jobs: 4
-  temp_directory: /tmp/media_sync
-```
+**Q: The tool is slow on large files.**
+A: Smart sync performs detailed analysis and may take longer. For faster processing, use manual offset or process shorter segments.
 
-## Contributing
+## Extending the Tool
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- **Add New Formats**: Update the `supported_formats` sets in `AudioHandler` and `VideoHandler` classes.
+- **Custom Processing Steps**: Extend the `MediaProcessor` class or add new modules in `src/core/`.
+- **Configuration**: Add new options to `config/config.yaml` and access them via the `ConfigLoader` utility.
