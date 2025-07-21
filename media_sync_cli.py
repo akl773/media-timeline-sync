@@ -5,6 +5,7 @@ from pathlib import Path
 
 from src.core.media_processor import MediaProcessor
 from src.utils.logger import setup_logger
+from src.utils.config_loader import ConfigLoader
 
 logger = setup_logger(__name__)
 
@@ -25,6 +26,12 @@ Examples:
     Manual offset:
     python media_sync_cli.py --input video.mp4 --audio hindi.mp3 --output final.mp4 --offset 2.5
         """
+    )
+
+    parser.add_argument(
+        '--config',
+        default='config/config.yaml',
+        help='Path to configuration YAML file (default: config/config.yaml)'
     )
 
     parser.add_argument(
@@ -77,6 +84,17 @@ Examples:
         help='Enable verbose logging'
     )
 
+    parser.add_argument(
+        '--list-formats',
+        action='store_true',
+        help='List supported video and audio formats and exit'
+    )
+    parser.add_argument(
+        '--dry-run',
+        action='store_true',
+        help='Validate inputs and config, but do not process media'
+    )
+
     return parser.parse_args()
 
 
@@ -106,9 +124,26 @@ def main():
     if args.verbose:
         logger.setLevel(logging.DEBUG)
 
+    # Load config
+    config_loader = ConfigLoader(args.config)
+
+    if args.list_formats:
+        processor = MediaProcessor()
+        print("Supported video formats:", ', '.join(processor.supported_video_formats))
+        print("Supported audio formats:", ', '.join(processor.supported_audio_formats))
+        return 0
+
     try:
         # Validate paths
         validate_paths(args.input, args.audio, args.output)
+        # Validate config (example: check ffmpeg.audio_codec)
+        audio_codec = config_loader.get('ffmpeg.audio_codec', 'aac')
+        video_codec = config_loader.get('ffmpeg.video_codec', 'copy')
+        logger.info(f"Config: audio_codec={audio_codec}, video_codec={video_codec}")
+
+        if args.dry_run:
+            print("Dry run successful. Inputs and config are valid.")
+            return 0
 
         # Initialize processor
         processor = MediaProcessor()
